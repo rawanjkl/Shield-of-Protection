@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic
+tldextract
+python-whois
+scikit-learn
+joblib
+pandas
+numpy
