@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أبشر - فاحص الروابط الاحتيالية</title>
+    <link rel="shortcut icon" href="https://i.imgur.com/7r5G7Yk.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #ffffff;
+            color: #222;
+            line-height: 1.7;
+        }
+
+        .absher-topbar {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .absher-logo { height: 82px; }
+        .moi-logo { height: 86px; }
+
+        .main-container {
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #008550;
+            font-size: 2.8rem;
+            font-weight: 900;
+            margin: 30px 0 12px;
+        }
+        .subtitle {
+            font-size: 1.35rem;
+            color: #444;
+            margin-bottom: 50px;
+            font-weight: 600;
+        }
+
+        .scan-card {
+            background: linear-gradient(135deg, #f8fff9 0%, #e8f7ee 100%);
+            border: 4px solid #008550;
+            border-radius: 24px;
+            padding: 50px 40px;
+            box-shadow: 0 20px 50px rgba(0,133,80,0.18);
+            margin-bottom: 60px;
+        }
+        .scan-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #008550;
+            margin-bottom: 30px;
+        }
+        .url-input {
+            width: 100%;
+            padding: 20px 28px;
+            font-size: 1.3rem;
+            border: 3px solid #008550;
+            border-radius: 18px;
+            background: white;
+            box-shadow: 0 8px 25px rgba(0,133,80,0.12);
+            text-align: right;
+            direction: ltr;
+            margin-bottom: 25px;
+        }
+        .url-input:focus {
+            outline: none;
+            border-color: #006633;
+            box-shadow: 0 0 0 6px rgba(0,133,80,0.25);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .scan-btn {
+            background: #008550;
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 25px rgba(0,133,80,0.35);
+            min-width: 220px;
+        }
+        .scan-btn:hover { background: #006633; transform: translateY(-4px); }
+        .clear-btn { background: #666; }
+
+        #loading {
+            display: none;
+            background: white;
+            border: 5px solid #008550;
+            border-radius: 22px;
+            padding: 45px 35px;
+            max-width: 520px;
+            margin: 50px auto;
+            box-shadow: 0 18px 50px rgba(0,133,80,0.22);
+            text-align: center;
+        }
+        .spinner {
+            width: 70px;
+            height: 70px;
+            border: 7px solid #f0f0f0;
+            border-top: 7px solid #008550;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 25px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #resultDiv {
+            display: none;
+            background: white;
+            border: 6px solid #008550;
+            border-radius: 26px;
+            padding: 30px 25px;
+            max-width: 600px;
+            margin: 50px auto;
+            box-shadow: 0 20px 50px rgba(0,133,80,0.22);
+            text-align: right;
+            animation: popIn 0.7s ease-out;
+        }@keyframes popIn {
+            from { opacity: 0; transform: scale(0.92); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+
+        #status { font-size: 1.8rem; font-weight: 900; margin-bottom: 15px; }
+        .safe { color: #008550; }
+        .medium-risk { color: #c88700; }
+        .malicious { color: #d32f2f; }
+
+        #resultDiv ul {
+            margin: 8px 0;
+            padding-right: 20px;
+            list-style: disc;
+        }
+
+        .absher-footer {
+            background: #008550;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 100px;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="absher-header">
+    <div class="absher-topbar">
+        <img src="https://saudipedia.com/ch/saudipediach/uploads/images/2024/11/07/thumbs/600x600/142091.jpg" alt="أبشر" class="absher-logo">
+        <img src="https://iconape.com/wp-content/files/yn/20439/png/Ministry-of-Interior-01.png" alt="وزارة الداخلية" class="moi-logo">
+    </div>
+</header>
+
+<div class="main-container">
+
+    <h1>فاحص الروابط الاحتيالية</h1>
+    <p class="subtitle">أداة رسمية من منصة أبشر لحمايتك من الروابط الضارة والتصيد الإلكتروني</p>
+
+    <div class="scan-card">
+        <div class="scan-title">أدخل الرابط المراد فحصه</div>
+        <input type="text" id="urlInput" class="url-input" placeholder="https://example.com" autocomplete="off">
+        <div class="btn-group">
+            <button class="scan-btn" onclick="analyzeLink()">فحص الرابط الآن</button>
+            <button class="scan-btn clear-btn" onclick="clearFields()">مسح الحقل</button>
+        </div>
+    </div>
+
+    <div id="loading">
+        <div class="spinner"></div>
+        <h3>جاري فحص الرابط...</h3>
+        <p>يتم التحليل باستخدام تقنيات أبشر المتطورة</p>
+    </div>
+
+    <!-- النتيجة + زر التفاصيل -->
+    <div id="resultDiv">
+        <p id="status" class="safe"></p>
+
+        <button id="detailsBtn" 
+            onclick="toggleDetails()" 
+            style="
+                background:#008550; 
+                color:white; 
+                padding:12px 25px; 
+                border:none; 
+                border-radius:12px; 
+                font-size:1.1rem; 
+                font-weight:700; 
+                cursor:pointer;
+                margin-bottom:15px;
+            ">
+            عرض التفاصيل
+        </button>
+
+        <div id="detailsSection" style="display:none;">
+            <h4>أسباب القواعد:</h4>
+            <ul id="ruleReasons"></ul>
+
+            <h4>أسباب الذكاء الاصطناعي:</h4>
+            <ul id="aiReasons"></ul>
+
+            <h4>خصائص الرابط:</h4>
+            <ul id="featuresList"></ul>
+        </div>
+    </div>
+
+    <!-- ========================= -->
+    <!--  مزايا النظام المستقبلية  -->
+    <!-- ========================= -->
+    <div class="result" style="
+        margin-top:40px;
+        background:white;
+        border: 4px solid #008550;
+        border-radius:22px;
+        padding:25px;
+        box-shadow:0 12px 35px rgba(0,133,80,0.18);
+        text-align:right;
+    ">
+        <h2 style="color:#008550; font-weight:900; font-size:1.9rem; margin-bottom:15px;">
+            🔒 ميزات النظام المستقبلية (قيد التطوير)
+        </h2>
+
+        <ul style="line-height:2.1; font-size:1.25rem; color:#333; padding-right:20px;">
+            <li>البصمة السلوكية الرقمية Digital Behavior Fingerprint</li>
+            <li>الرادار الوطني للاحتيال National Fraud Radar</li>
+            <li>درع الأجهزة Trusted Device Shield</li>
+            <li>محرك التنبؤ بالهجمات Attack Prediction Engine</li>
+            <li>مرصد المحتالين Fraudster Observatory</li>
+            <li>تحليل QR الذكي Smart QR Analysis</li>
+        </ul>
+
+        <p style="color:#666; margin-top:10px; font-size:1.15rem; font-weight:600;">
+            جميع هذه التقنيات جاهزة للربط مستقبلًا داخل بيئة أبشر الرسمية، 
+            وسترفع مستوى الحماية الوطنية باستخدام الذكاء الاصطناعي وتحليل السلوك.
+        </p>
+    </div>
+
+</div>
+
+<footer class="absher-footer"><p><strong>جميع الحقوق محفوظة ©️ 2025 - وزارة الداخلية - المملكة العربية السعودية</strong></p>
+    <p>تطوير وتشغيل: مركز المعلومات الوطني</p>
+</footer>
+
+<script>
+
+let isAnalyzing = false;
+
+async function analyzeLink() {
+    if (isAnalyzing) return;
+    isAnalyzing = true;
+
+    const url = document.getElementById("urlInput").value.trim();
+    if (!url) { 
+        alert("الرجاء إدخال رابط صحيح");
+        isAnalyzing = false;
+        return;
+    }
+
+    const resultDiv = document.getElementById("resultDiv");
+    resultDiv.style.display = "none";
+
+    document.getElementById("ruleReasons").innerHTML = "";
+    document.getElementById("aiReasons").innerHTML = "";
+    document.getElementById("featuresList").innerHTML = "";
+
+    document.getElementById("detailsSection").style.display = "none";
+    document.getElementById("detailsBtn").textContent = "عرض التفاصيل";
+
+    document.getElementById("loading").style.display = "block";
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url })
+        });
+        const data = await response.json();
+
+        document.getElementById("loading").style.display = "none";
+        resultDiv.style.display = "block";
+
+        const statusEl = document.getElementById("status");
+
+        if (data.result.risk_level === "High") {
+            statusEl.textContent = "⚠️ الرابط خبيث جدًا (خطورة عالية)";
+            statusEl.className = "malicious";
+            resultDiv.style.borderColor = "#d32f2f";
+        } else if (data.result.risk_level === "Medium") {
+            statusEl.textContent = "⚠️ الرابط مشبوه (خطورة متوسطة)";
+            statusEl.className = "medium-risk";
+            resultDiv.style.borderColor = "#c88700";
+        } else {
+            statusEl.textContent = "✔️ الرابط آمن (خطورة منخفضة)";
+            statusEl.className = "safe";
+            resultDiv.style.borderColor = "#008550";
+        }
+
+        [...new Set(data.rule_reasons)].forEach(r => {
+            let li = document.createElement("li");
+            li.textContent = r;
+            document.getElementById("ruleReasons").appendChild(li);
+        });
+
+        [...new Set(data.ai_reasons)].forEach(r => {
+            let li = document.createElement("li");
+            li.textContent = r;
+            document.getElementById("aiReasons").appendChild(li);
+        });
+
+        Object.keys(data.features).forEach(k => {
+            let li = document.createElement("li");
+            li.textContent = k + ": " + data.features[k];
+            document.getElementById("featuresList").appendChild(li);
+        });
+
+    } catch (error) {
+        document.getElementById("loading").style.display = "none";
+        resultDiv.style.display = "block";
+
+        const statusEl = document.getElementById("status");
+        statusEl.textContent = "فشل الاتصال بالخادم";
+        statusEl.className = "malicious";
+        resultDiv.style.borderColor = "#d32f2f";
+
+        console.error(error);
+    } finally {
+        isAnalyzing = false;
+    }
+}
+
+function clearFields() {
+    document.getElementById("urlInput").value = "";
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("resultDiv").style.display = "none";
+    document.getElementById("ruleReasons").innerHTML = "";
+    document.getElementById("aiReasons").innerHTML = "";
+    document.getElementById("featuresList").innerHTML = "";
+}
+
+function toggleDetails() {
+    const details = document.getElementById("detailsSection");
+    const btn = document.getElementById("detailsBtn");
+
+    if (details.style.display === "none") {
+        details.style.display = "block";
+        btn.textContent = "إخفاء التفاصيل";
+    } else {
+        details.style.display = "none";
+        btn.textContent = "عرض التفاصيل";
+    }
+}
+
+</script>
+
+</body>
+</html>
